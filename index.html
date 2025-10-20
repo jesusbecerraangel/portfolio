@@ -1,0 +1,1111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>POV — Folder with Sheets (Side Opening and Right Tab)</title>
+  
+  <style>
+    /* ===== GENERAL STYLES ===== */
+    html, body {
+      height: 500vh;
+      margin: 0;
+      font-family: "Courier New", Courier, monospace;
+      overflow-x: hidden;
+      background-image: url("bg3.jpg");
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* ===== MAIN STRUCTURE ===== */
+    .desk {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 2000px;
+    }
+
+    .folder {
+      position: relative;
+      width: 640px;
+      height: 800px;
+      background: #f2d87c;
+      border-radius: 6px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      transform-style: preserve-3d;
+    }
+
+    /* ===== FOLDER COMPONENTS ===== */
+    .folder-tab {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: calc(640px * 0.3125);
+      height: calc(800px * 0.075);
+      background: #f5e08f;
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      z-index: 1001;
+    }
+
+    .folder-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f5e08f;
+      border-radius: 6px;
+      box-shadow: inset -3px 0 0 rgba(0,0,0,0.1);
+      transform-origin: left center;
+      z-index: 1000;
+    }
+
+    .lash {
+      position: absolute;
+      top: 0px;
+      right: -30px;
+      width: 50px;
+      height: 400px;
+      background: #f5e08f;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    /* ===== SHEETS CONTAINER ===== */
+    .deck {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      width: 90%;
+      height: 90%;
+      overflow: visible;
+    }
+
+    /* ===== INDIVIDUAL SHEETS ===== */
+    .sheet {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0px;
+      background: #fdf6e3;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transform-origin: center;
+      display: block;
+      justify-content: center;
+      align-items: flex-start;
+      font-weight: 600;
+      color: #222;
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* Initial sheets stacking */
+    .deck .sheet:nth-child(1) { transform: translateY(0px); }
+    .deck .sheet:nth-child(2) { transform: translateY(2px); }
+    .deck .sheet:nth-child(3) { transform: translateY(4px); }
+    .deck .sheet:nth-child(4) { transform: translateY(6px); }
+    .deck .sheet:nth-child(5) { transform: translateY(8px); }
+
+    /* ===== SHEETS CONTENT ===== */
+    .content-sheet, .content {
+      position: relative;
+      float: left;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      box-sizing: border-box;
+      padding: 30px;
+    }
+
+    .content {
+      padding: 20px 30px;
+    }
+
+    /* ===== VISUAL ELEMENTS ===== */
+    .foto {
+      position: absolute;
+      right: 5px;
+      top: -5px;
+      width: 30%;
+      transform: rotate(3deg);
+      padding: 10px;
+      background: white;
+      box-sizing: border-box;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    }
+
+    .clip {
+      position: absolute;
+      top: -15px;
+      right: 30px;
+      width: 20px;
+    }
+
+    .conf-b, .exp {
+      position: absolute;
+      z-index: -1000;
+      opacity: 0.2;
+    }
+
+    .conf-b {
+      bottom: 50px;
+      left: calc(20%);
+      width: 60%;
+    }
+
+    .exp {
+      bottom: 70px;
+      left: 20%;
+      width: 70%;
+      transform: rotate(-12deg);
+    }
+
+    /* ===== SPECIAL CONTAINERS ===== */
+    .content-folder {
+      position: relative;
+      float: left;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .content-folder .confidential {
+      width: 40%;
+      position: absolute;
+      top: 30%;
+      left: 30%;
+      overflow: hidden;
+    }
+
+    .content-folder .ts {
+      position: absolute;
+      width: 70%;
+      right: -50px;
+      bottom: 45px;
+      transform: rotate(-25deg);
+    }
+
+    .content-icon {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .content-icon .icon-bg {
+      position: absolute;
+      width: 500px;
+      opacity: 0.1;
+    }
+
+    /* ===== STICKY NOTES ===== */
+    .content-note, .content-note-2 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      font-family: marker;
+      color: #4a148c;
+    }
+
+    .content-note {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .content-note-2 {
+      justify-content: start;
+      align-items: start;
+    }
+
+    .note, .note-2 {
+      background: #f8bbd0;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .note {
+      width: 300px;
+      height: 300px;
+      transform: rotate(-15deg);
+      font-size: 28px;
+    }
+
+    .note-2 {
+      width: 250px;
+      height: 250px;
+      transform: rotate(-7deg);
+      font-size: 28px;
+      margin-left: 20px;
+      margin-top: 30px;
+    }
+
+    /* ===== TYPOGRAPHY AND TEXTS ===== */
+    h3 {
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 1.3rem;
+    }
+
+    p, li {
+      font-size: 0.7rem;
+    }
+
+    .list {
+      list-style-type: none;
+      padding: 0px;
+      margin: 0px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .left {
+      text-align: left;
+    }
+
+    /* ===== CASE FILE TABLES ===== */
+    table.expediente {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      margin: 10px 0px;
+    }
+
+    /* Table headers */
+    table.expediente th {
+      background-color: #000;
+      color: #fff;
+      padding: 5px;
+      border: 1px solid #222;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    /* Body cells */
+    table.expediente td {
+      padding: 8px 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      font-size: 0.7rem;
+    }
+
+    /* Alternating rows for better readability */
+    table.expediente tbody tr:nth-child(even) {
+      background-color: rgba(0,0,0,0.03);
+    }
+
+    /* ===== CUSTOM FONTS ===== */
+    @font-face {
+      font-family: marker;
+      src: url(marker.ttf);
+    }
+
+    /* ===== MEDIA QUERIES ===== */
+    @media (max-width: 768px) {
+      .folder {
+        width: 90vw;
+        height: calc(90vw / 0.8);
+      }
+      
+      .folder-tab {
+        width: calc(90vw * 0.3125);
+        height: calc((90vw / 0.8) * 0.075);
+      }
+      
+      .deck {
+        width: 90%;
+        height: 90%;
+        top: 5%;
+        left: 5%;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      th, td, li {
+        font-size: 0.4rem !important;
+        padding: 0px !important;
+      }
+
+      td {
+        padding: 5px !important;
+      }
+
+      .lash {
+        right: -10px;
+        width: 20px;
+        height: 200px;
+      }
+
+      .content-note-2 .note-2 {
+        width: 100px;
+        height: 100px;
+        font-size: 0.7rem;
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+
+      .content-note .note {
+        width: 100px;
+        height: 100px;
+        font-size: 0.7rem;
+      }
+
+      .foto {
+        padding: 5px !important;
+      }
+
+      .ts {
+        right: -20px !important;
+        bottom: 20px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- MAIN CONTAINER -->
+  <div class="desk">
+    <div class="folder" id="folder">
+      
+      <!-- FOLDER COVER -->
+      <div class="folder-top" id="folderTop">
+        <span class="lash"></span>
+        <div class="content-folder" id="content-folder">
+          <img src="c.png" class="confidential" alt="Confidential stamp">
+          <img src="ts.png" class="ts" alt="Decorative element">
+          
+          <!-- STICKY NOTE -->
+          <div class="content-note-2">
+            <div class="note-2">Only he can help you contact him</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SHEETS CONTAINER -->
+      <div class="deck" id="deck">
+        
+        <!-- SHEET 1: SECRET CASE FILE -->
+        <div class="sheet" data-index="0">
+          <div class="content-sheet">
+            <img src="foto.png" class="foto" alt="Suspect photo">
+            <img src="clip.png" class="clip" alt="Paper clip">
+            
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">SECRET CASE FILE Nº791992</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Suspect Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Name: Bahimer Jesus Becerra Angel</li>
+                      <li>Alias: Fullstack</li>
+                      <li>Registered residence: San Cristobal, Venezuela</li>
+                      <li>Areas of operation: Software Development</li>
+                      <li>Status: Active</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Suspect Profile</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>High-risk suspect in digital environments, capable of infiltrating complex systems and rebuilding architectures from scratch. Each operation leaves evidence of efficiency, scalability, and surgical precision, ensuring all project elements are perfectly aligned and functional.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operates with absolute control over all fronts: front-end, back-end, and mobile systems. His intervention is silent but decisive, integrating disparate components, neutralizing errors, and ensuring each project meets its objective without leaving traces of inconsistencies.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has left his mark on multiple "code scenes": web applications, mobile apps, and backend systems. Each operation reflects strategic planning, rapid problem-solving, and total mastery over architecture, leaving clean, efficient, and robust projects.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Expert in system integration, database management, and process optimization. His ability to anticipate failures and neutralize them before they affect operations makes him a critical resource, capable of maintaining absolute control over any project.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <img src="conf.webp" class="conf-b" alt="Confidential background">
+          </div>
+        </div>
+        <!-- END SHEET 1 -->
+        
+        <!-- SHEET 2: VISUAL OPERATIONS -->
+        <div class="sheet" data-index="1">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">VISUAL OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Visual Interface Layout Specialist</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Specialist in structuring and laying out precise and functional interfaces. Masters the use of semantic HTML and advanced CSS to build clean, accessible, and optimized visual environments. His ability to anticipate structural or design errors allows him to deliver solid layouts ready for integration with dynamic systems, always maintaining total control over the visual and technical order of the project.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in CSS and Animations</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Masters complex layouts, grids, flexbox, and advanced CSS animations. Each transition, effect, and micro-interaction is implemented with precision, ensuring a fluid and attractive user experience. His work guarantees dynamic and consistent interfaces, ready to integrate with any system.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Total DOM Control with JavaScript</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Specialist in element manipulation and events, ensuring each component responds perfectly to user interaction. His intervention enables the implementation of complex behaviors, synchronized animations, and interactive processes without errors. Each operation reflects efficiency, creativity, and absolute mastery over the interface.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>HTML</li>
+                      <li>CSS</li>
+                      <li>Javascript</li>
+                      <li>Bootstrap</li>
+                      <li>Materialize</li>
+                      <li>Tailwind</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 2 -->
+        
+        <!-- SHEET 3: DIGITAL OPERATIONS -->
+        <div class="sheet" data-index="2">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">DIGITAL OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>JavaScript Frameworks Operative</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capable of orchestrating complex applications using modern JavaScript frameworks. Masters the creation of reusable components, state and route management, ensuring each system is scalable, efficient, and maintainable. His intervention guarantees robust and reliable projects, aligned with client objectives.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in JS Frameworks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operates with absolute control over Angular, React, Vue, and SolidJS, implementing dynamic components and managing data flow with surgical precision. Each operation ensures a fluid user experience and optimal performance, integrating animations and logic impeccably.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has deployed interactive and scalable web applications, leaving evidence of strategic planning and impeccable execution. His intervention guarantees consistency in architecture, modularity, and easy maintenance, reflecting absolute mastery over modern JavaScript frameworks.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Angular</li>
+                      <li>React</li>
+                      <li>Vue</li>
+                      <li>SolidJS</li>
+                      <li>Redux / Zustand</li>
+                      <li>React Router / Vue Router</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 3 -->
+        
+        <!-- SHEET 4: MOBILE OPERATIONS -->
+        <div class="sheet" data-index="3">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">MOBILE OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Hybrid and Native App Development Operative</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capable of creating Progressive Web Apps and hybrid mobile applications using Ionic, as well as native applications with React Native. His intervention ensures intuitive interfaces, optimal performance, and consistent experience across multiple platforms. Each project reflects scalability, robustness, and adaptation to different devices and operating systems.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in Mobile Development</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operates by controlling components, navigation, and interaction logic to guarantee fluidity and performance. Implements native functionalities and hybrid modules, synchronizing data and animations with precision. Each operation ensures the app works consistently and efficiently, meeting the standards of each platform.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has successfully deployed PWAs and hybrid and native mobile applications, guaranteeing performance, usability, and scalability. Each project reflects strategic planning, precise execution, and perfect adaptation to diverse devices and operating systems.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Ionic (PWA and Hybrid Apps)</li>
+                      <li>React Native (Native Apps)</li>
+                      <li>REST API Integration</li>
+                      <li>Reusable Components</li>
+                      <li>Advanced Animations and Navigation</li>
+                      <li>Optimization for Android and iOS</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 4 -->
+        
+        <!-- SHEET 5: BACKEND OPERATIONS -->
+        <div class="sheet" data-index="4">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">BACKEND OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Backend Languages and Automation Operative</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capable of designing and maintaining robust backend systems using PHP, Python, and Node.js. Expert in report generation, web scraping, automation scripts, home automation, and database connections. His intervention ensures efficiency, security, and scalability in each operation, optimizing critical information flows.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in Backend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operates with absolute control over server logic and data manipulation. Implements web services, APIs, and precise automations to guarantee secure and consistent operations. Each script or process is planned and executed with surgical precision, minimizing risks and maximizing performance.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has deployed scalable, efficient, and reliable backend systems. Each operation reflects strategic planning, integration with databases and external services, and impeccable execution. Supervised projects demonstrate absolute mastery over backend languages and complex automation processes.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>PHP</li>
+                      <li>Python</li>
+                      <li>Node.js</li>
+                      <li>Web Services / APIs</li>
+                      <li>Scraping / Automation</li>
+                      <li>Database Connections</li>
+                      <li>Home Automation and Custom Scripts</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 5 -->
+        
+        <!-- SHEET 6: ADVANCED BACKEND OPERATIONS -->
+        <div class="sheet" data-index="5">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">ADVANCED BACKEND OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Backend Frameworks and Application Security Operative</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capable of developing robust projects following MVC patterns and creating secure REST APIs. Masters frameworks like Laravel, Yii, Symfony, CodeIgniter, Express, and Flask, integrating systems with user roles, permissions, and JWT authentication. Each operation guarantees security, scalability, and efficiency in backend architecture.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in Backend Frameworks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Implements complex server logic, controlling routes, controllers, and models with precision. Each API, endpoint, and authentication process is planned and executed to minimize vulnerabilities and maximize performance. His operations ensure data integrity and consistency in every information flow.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has executed advanced backend projects, combining solid frameworks with security practices and access control. Each intervention reflects strategic planning, efficiency in user and role management, and impeccable execution of APIs and scalable systems.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Laravel</li>
+                      <li>Yii</li>
+                      <li>Symfony</li>
+                      <li>CodeIgniter</li>
+                      <li>Express</li>
+                      <li>Flask</li>
+                      <li>MVC</li>
+                      <li>REST APIs</li>
+                      <li>JWT / Role and Permission Management</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 6 -->
+        
+        <!-- SHEET 7: SYSTEM OPERATIONS -->
+        <div class="sheet" data-index="6">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">SYSTEM OPERATIONS CASE FILE</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>System Administration and Containers Operative</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Case Specialties</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capable of administering Linux systems at the configuration, security, and network service management level. Expert in implementing and supervising Docker containers, ensuring isolated, reproducible, and efficient environments. Controls versions and collaborations through Git, guaranteeing a secure and reliable operations history.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi in Systems and Containers</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operates with total control over system administration and service deployment. Implements Docker containers for scalable and reproducible projects, managing images, volumes, and networks with precision. Git is used to version, coordinate, and audit operations, ensuring traceability and security in every change.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Operations Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Since 2017, he has managed Linux systems, Docker containers, and Git repositories for multiple projects. Each operation reflects strategic planning, security control, and efficiency in environment administration, guaranteeing stability, scalability, and secure collaboration.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Technological Arsenal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Linux (Administration and Security)</li>
+                      <li>Docker (Containers and Orchestration)</li>
+                      <li>Git (Version Control)</li>
+                      <li>Network Service Management</li>
+                      <li>Environment Automation</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Experience background">
+          </div>
+        </div>
+        <!-- END SHEET 7 -->
+        
+        <!-- FINAL NOTE -->
+        <div class="content-note">
+          <div class="note">Call only in case of emergency +584243442185</div>
+        </div>
+      </div>
+      <!-- END SHEETS CONTAINER -->
+      
+    </div>
+  </div>
+
+  <script>
+    // ===== SCROLL ANIMATIONS =====
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
+    const folderTop = document.getElementById('folderTop');
+    const contentFolder = document.getElementById('content-folder');
+    const totalScroll = document.body.scrollHeight - window.innerHeight;
+
+    window.addEventListener('scroll', () => {
+      const scroll = window.scrollY;
+      const progress = scroll / totalScroll;
+
+      // Side folder opening
+      const openStart = 0;
+      const openEnd = 0.15;
+      let openProg = (progress - openStart) / (openEnd - openStart);
+      openProg = Math.min(Math.max(openProg, 0), 1);
+      const openAngle = -Math.sin(openProg * Math.PI/2) * 180;
+      folderTop.style.transform = `rotateY(${openAngle}deg)`;
+      contentFolder.style.opacity = (openAngle >= -180 && openAngle <= -90) ? 0 : 1;
+
+      // Sheets movement
+      const moveStart = 0.15;
+      const moveEnd = 1;
+      let moveProg = (progress - moveStart) / (moveEnd - moveStart);
+      moveProg = Math.min(Math.max(moveProg, 0), 1);
+      const step = 1 / sheets.length;
+
+      sheets.forEach((sheet, i) => {
+        const content = sheet.querySelector('.content-sheet');
+        const start = step * i;
+        const end = step * (i + 1);
+        let localProg = (moveProg - start) / (end - start);
+        localProg = Math.min(Math.max(localProg, 0), 1);
+
+        const translateX = Math.pow(localProg, 1.4) * 700;
+        const translateY = i * 2;
+        const translateZ = Math.sin(localProg * Math.PI) * -50;
+        const rotateY = localProg * 180;
+        const rotateX = Math.sin(localProg * Math.PI * 2) * 5;
+        const rotateZ = Math.sin(localProg * Math.PI) * 3;
+
+        sheet.style.transform = `
+          translate3d(${translateX}px, ${translateY}px, ${translateZ}px)
+          rotateX(${rotateX}deg)
+          rotateY(${rotateY}deg)
+          rotateZ(${rotateZ}deg)
+        `;
+        content.style.opacity = (rotateY >= 90 && rotateY <= 270) ? 0 : 1;
+        sheet.style.zIndex = (rotateY > 80 && rotateY < 100) ? 50 - i : 100 - i;
+        sheet.style.boxShadow = translateX > 400 ? "none" : "0 6px 12px rgba(0,0,0,0.1)";
+      });
+    });
+  </script>
+</body>
+</html>
